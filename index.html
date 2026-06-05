@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Gestionnaire Étudiants</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="css/index.css">
+</head>
+
+<body>
+
+  <header class="topbar">
+    <h1 class="app-title">Generateur de Bulletin</h1>
+
+    <div class="topbar-actions">
+      <div class="search-bar">
+        <i class="bi bi-search search-icon"></i>
+
+        <input
+          type="text"
+          placeholder="Rechercher un étudiant..."
+          aria-label="Rechercher un étudiant"
+        >
+
+        <button class="search-clear" type="button" aria-label="Effacer la recherche">
+          <i class="bi bi-x"></i>
+        </button>
+      </div>
+
+      <a class="nav-page-btn" href="classes.html">
+        <i class="bi bi-list-check"></i>
+        Matières
+      </a>
+    </div>
+  </header>
+
+  <main class="content">
+
+    <!-- AJOUT ÉTUDIANT -->
+    <section class="students-section">
+      <div class="table-header compact-header">
+        <div>
+          <h2>Ajouter un étudiant</h2>
+          <p>Choisissez le niveau de l’étudiant avant l’enregistrement.</p>
+        </div>
+      </div>
+
+      <form class="student-entry-form">
+        <input type="text" placeholder="Nom de l’étudiant">
+
+        <select>
+          <option value="">Sexe</option>
+          <option>M</option>
+          <option>F</option>
+        </select>
+
+        <button type="button">
+          <i class="bi bi-person-plus"></i>
+          Ajouter
+        </button>
+      </form>
+    </section>
+
+    <!-- LISTE ÉTUDIANTS -->
+    <section class="students-section">
+      <div class="table-header">
+        <h2>Liste des étudiants</h2>
+
+        <button class="export-btn" type="button">
+          <i class="bi bi-filetype-csv"></i>
+          Exporter
+        </button>
+      </div>
+
+      <div class="students-list">
+
+        <!-- ÉTUDIANT 1 -->
+        <details class="student-row" open>
+          <summary class="student-summary">
+            <div class="student-left">
+              <span class="avatar avatar-main">AY</span>
+
+              <div>
+                <h3>Amine Yassine</h3>
+                <p>Sexe: M — Ajouté le 12/05/2025</p>
+              </div>
+            </div>
+
+            <div class="student-metrics">
+              <div class="metric-item">
+                <span>Moyenne</span>
+                <strong>15,92</strong>
+              </div>
+
+              <div class="metric-item">
+                <span>Classement</span>
+                <strong>1er / 3</strong>
+              </div>
+
+              <span class="badge badge-success">Très bien</span>
+
+              <i class="bi bi-chevron-down chevron"></i>
+            </div>
+          </summary>
+
+          <div class="student-panel">
+
+            <!-- AJOUT NOTE -->
+            <div class="note-form-inline">
+              <select>
+                <option>Choisir une matière</option>
+                <option>Mathématiques</option>
+                <option>Physique-Chimie</option>
+                <option>SVT</option>
+                <option>Français</option>
+              </select>
+
+              <input type="number" placeholder="Note /20">
+
+              <button type="button" class="add-note-btn">
+                <i class="bi bi-plus-circle"></i>
+                Ajouter note
+              </button>
+            </div>
+
+            <!-- TABLE NOTES -->
+            <div class="notes-table-wrap">
+              <table class="notes-table">
+                <thead>
+                  <tr>
+                    <th>Matière</th>
+                    <th>Coefficient</th>
+                    <th>Note</th>
+                    <th>Observation</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  <tr>
+                    <td>Mathématiques</td>
+
+                    <td>
+                      <span class="coeff-badge">4</span>
+                    </td>
+
+                    <td>
+                      <strong>19,00</strong>
+                    </td>
+
+                    <td>
+                      <span class="badge badge-success">Excellent</span>
+                    </td>
+
+                    <td class="note-action-cell">
+                      <button class="delete-note-btn" type="button" aria-label="Supprimer la note de Mathématiques">
+                        <i class="bi bi-trash3"></i>
+                      </button>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td>Physique-Chimie</td>
+
+                    <td>
+                      <span class="coeff-badge">3</span>
+                    </td>
+
+                    <td>
+                      <strong>15,00</strong>
+                    </td>
+
+                    <td>
+                      <span class="badge badge-success">Très bien</span>
+                    </td>
+
+                    <td class="note-action-cell">
+                      <button class="delete-note-btn" type="button" aria-label="Supprimer la note de Physique-Chimie">
+                        <i class="bi bi-trash3"></i>
+                      </button>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td>Français</td>
+
+                    <td>
+                      <span class="coeff-badge">2</span>
+                    </td>
+
+                    <td>
+                      <strong>10,00</strong>
+                    </td>
+
+                    <td>
+                      <span class="badge badge-warning">Passable</span>
+                    </td>
+
+                    <td class="note-action-cell">
+                      <button class="delete-note-btn" type="button" aria-label="Supprimer la note de Français">
+                        <i class="bi bi-trash3"></i>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- ACTION BULLETIN -->
+            <div class="student-actions-bottom">
+              <button type="button" class="bulletin-btn">
+                <i class="bi bi-printer"></i>
+                Générer le bulletin
+              </button>
+            </div>
+
+          </div>
+        </details>
+
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <p>© 2025 Gestionnaire Étudiants</p>
+  </footer>
+
+</body>
+</html>
