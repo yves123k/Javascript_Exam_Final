@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Bulletin scolaire</title>
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600;700&display=swap"
+    rel="stylesheet"
+  >
+
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+  >
+
+  <link
+    rel="stylesheet"
+    href="css/bulletin.css"
+  >
+
+</head>
+
+<body>
+
+  <!-- BARRE SUPÉRIEURE -->
+
+  <header class="topbar">
+
+    <div class="topbar-title">
+
+      <span class="brand-icon">
+        <i class="bi bi-file-earmark-text"></i>
+      </span>
+
+      <div>
+
+        <h1>
+          Bulletin scolaire
+        </h1>
+
+        <p>
+          Résultats et appréciation générale
+        </p>
+
+      </div>
+
+    </div>
+
+
+    <div class="topbar-actions">
+
+      <a
+        class="back-btn"
+        href="index.html"
+      >
+
+        <i class="bi bi-arrow-left"></i>
+
+        Étudiants
+
+      </a>
+
+
+      <button
+        class="print-btn"
+        id="printBulletinBtn"
+        type="button"
+      >
+
+        <i class="bi bi-printer"></i>
+
+        Imprimer
+
+      </button>
+
+    </div>
+
+  </header>
+
+
+  <!-- CONTENU PRINCIPAL -->
+
+  <main class="content">
+
+    <!-- MESSAGE D'ERREUR -->
+
+    <section
+      class="error-card"
+      id="errorCard"
+      hidden
+    >
+
+      <i class="bi bi-exclamation-circle"></i>
+
+      <h2>
+        Bulletin introuvable
+      </h2>
+
+      <p id="errorMessage">
+        Impossible de charger les informations de cet étudiant.
+      </p>
+
+      <a href="index.html">
+        Retourner à la liste
+      </a>
+
+    </section>
+
+
+    <!-- DOCUMENT DU BULLETIN -->
+
+    <article
+      class="bulletin-document"
+      id="bulletinDocument"
+    >
+
+      <!-- EN-TÊTE DU BULLETIN -->
+
+      <section class="bulletin-header">
+
+        <div>
+
+          <span class="document-label">
+            Générateur de Bulletin
+          </span>
+
+          <h2>
+            Bulletin de résultats
+          </h2>
+
+          <p>
+            Relevé individuel des notes enregistrées
+          </p>
+
+        </div>
+
+
+        <div class="document-reference">
+
+          <span>
+            Référence
+          </span>
+
+          <strong id="bulletinReference">
+            —
+          </strong>
+
+          <small id="generationDate">
+            —
+          </small>
+
+        </div>
+
+      </section>
+
+
+      <!-- IDENTITÉ ÉTUDIANT -->
+
+      <section class="student-identity">
+
+        <div class="student-avatar" id="studentAvatar">
+          —
+        </div>
+
+
+        <div class="identity-main">
+
+          <span>
+            Nom et prénom
+          </span>
+
+          <h3 id="studentName">
+            —
+          </h3>
+
+        </div>
+
+
+        <div class="identity-item">
+
+          <span>
+            Sexe
+          </span>
+
+          <strong id="studentGender">
+            —
+          </strong>
+
+        </div>
+
+
+        <div class="identity-item">
+
+          <span>
+            Date d'ajout
+          </span>
+
+          <strong id="studentDate">
+            —
+          </strong>
+
+        </div>
+
+      </section>
+
+
+      <!-- STATISTIQUES -->
+
+      <section class="statistics-grid">
+
+        <div class="stat-card stat-primary">
+
+          <span>
+            Moyenne générale
+          </span>
+
+          <strong id="averageValue">
+            —
+          </strong>
+
+          <small>
+            sur 20
+          </small>
+
+        </div>
+
+
+        <div class="stat-card">
+
+          <span>
+            Classement
+          </span>
+
+          <strong id="rankingValue">
+            —
+          </strong>
+
+          <small>
+            position générale
+          </small>
+
+        </div>
+
+
+        <div class="stat-card">
+
+          <span>
+            Meilleure note
+          </span>
+
+          <strong id="highestValue">
+            —
+          </strong>
+
+          <small>
+            sur 20
+          </small>
+
+        </div>
+
+
+        <div class="stat-card">
+
+          <span>
+            Plus faible note
+          </span>
+
+          <strong id="lowestValue">
+            —
+          </strong>
+
+          <small>
+            sur 20
+          </small>
+
+        </div>
+
+
+        <div class="stat-card">
+
+          <span>
+            Total coefficients
+          </span>
+
+          <strong id="coefficientValue">
+            —
+          </strong>
+
+          <small>
+            coefficients évalués
+          </small>
+
+        </div>
+
+      </section>
+
+
+      <!-- TABLEAU DES NOTES -->
+
+      <section class="notes-section">
+
+        <div class="section-heading">
+
+          <div>
+
+            <h3>
+              Résultats par matière
+            </h3>
+
+            <p>
+              Détail des notes et calcul pondéré.
+            </p>
+
+          </div>
+
+
+          <span
+            class="mention-badge"
+            id="mentionBadge"
+          >
+            —
+          </span>
+
+        </div>
+
+
+        <div class="table-wrapper">
+
+          <table class="bulletin-table">
+
+            <thead>
+
+              <tr>
+
+                <th>
+                  Matière
+                </th>
+
+                <th class="center">
+                  Coefficient
+                </th>
+
+                <th class="center">
+                  Note
+                </th>
+
+                <th class="center">
+                  Points
+                </th>
+
+                <th>
+                  Observation
+                </th>
+
+              </tr>
+
+            </thead>
+
+
+            <tbody id="bulletinNotesBody">
+
+              <tr>
+
+                <td colspan="5" class="empty-cell">
+                  Aucune note enregistrée.
+                </td>
+
+              </tr>
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      </section>
+
+
+      <!-- APPRÉCIATION -->
+
+      <section class="appreciation-section">
+
+        <div class="appreciation-icon">
+
+          <i class="bi bi-award"></i>
+
+        </div>
+
+
+        <div>
+
+          <span>
+            Appréciation générale
+          </span>
+
+          <strong id="generalAppreciation">
+            —
+          </strong>
+
+          <p id="appreciationMessage">
+            Les résultats de l’étudiant apparaîtront ici.
+          </p>
+
+        </div>
+
+      </section>
+
+
+      <!-- SIGNATURES -->
+
+      <section class="signatures-section">
+
+        <div class="signature-block">
+
+          <div class="signature-space"></div>
+
+          <p>
+            Signature du responsable
+          </p>
+
+        </div>
+
+
+        <div class="signature-block">
+
+          <div class="signature-space"></div>
+
+          <p>
+            Signature de l’établissement
+          </p>
+
+        </div>
+
+      </section>
+
+
+      <!-- PIED DU BULLETIN -->
+
+      <footer class="document-footer">
+
+        <p>
+          Bulletin généré automatiquement à partir des données enregistrées.
+        </p>
+
+        <span id="footerDate">
+          —
+        </span>
+
+      </footer>
+
+    </article>
+
+  </main>
+
+
+  <!-- PIED DE PAGE PRINCIPAL -->
+
+  <footer class="page-footer">
+
+    <p>
+      © 2025 Gestionnaire Étudiants
+    </p>
+
+  </footer>
+
+
+  <script src="js/bulletin.js"></script>
+
+</body>
+
+</html>
+

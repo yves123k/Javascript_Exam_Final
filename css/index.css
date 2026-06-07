@@ -567,6 +567,62 @@ a {
   font-weight: 600;
 }
 
+
+/* ================================
+   BOUTON SUPPRIMER ÉTUDIANT
+================================ */
+
+.delete-student-btn {
+  height: 38px;
+  padding: 0 16px;
+
+  background: #FFFFFF;
+  color: #DC2626;
+
+  border: 1px solid #FCA5A5;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.15s ease,
+    box-shadow 0.2s ease;
+}
+
+.delete-student-btn i {
+  font-size: 15px;
+}
+
+.delete-student-btn:hover {
+  background: #FEF2F2;
+  color: #B91C1C;
+  border-color: #DC2626;
+
+  box-shadow: 0 6px 14px rgba(220, 38, 38, 0.12);
+}
+
+.delete-student-btn:active {
+  transform: scale(0.97);
+}
+
+.delete-student-btn:focus-visible {
+  outline: none;
+
+  box-shadow:
+    0 0 0 3px rgba(220, 38, 38, 0.15);
+}
+
+
 /* ================================
    DELETE NOTE BUTTON
 ================================ */
@@ -617,6 +673,7 @@ a {
 
   display: flex;
   justify-content: flex-end;
+  gap: 15px;
 }
 
 .bulletin-btn {

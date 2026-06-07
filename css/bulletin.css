@@ -1,0 +1,1089 @@
+
+/* ================================
+   RESET + VARIABLES
+================================ */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  border-radius: 0 !important;
+}
+
+:root {
+  --color-primary: #0F766E;
+  --color-primary-dark: #134E4A;
+
+  --color-bg: #F7F8FA;
+  --color-surface: #FFFFFF;
+  --color-border: #E5E7EB;
+
+  --color-text: #111827;
+  --color-muted: #64748B;
+
+  --color-success: #15803D;
+  --color-warning: #D97706;
+  --color-danger: #DC2626;
+  --color-info: #1D4ED8;
+
+  --shadow-soft:
+    0 8px 18px
+    rgba(15, 23, 42, 0.035);
+
+  --shadow-card:
+    0 12px 28px
+    rgba(15, 23, 42, 0.055);
+}
+
+
+/* ================================
+   BASE
+================================ */
+
+html,
+body {
+  width: 100%;
+  min-height: 100%;
+}
+
+body {
+  min-height: 100vh;
+
+  display: grid;
+
+  grid-template-rows:
+    68px
+    1fr
+    38px;
+
+  grid-template-areas:
+    "topbar"
+    "content"
+    "footer";
+
+  background: var(--color-bg);
+  color: var(--color-text);
+
+  font-family:
+    "Inter",
+    Arial,
+    sans-serif;
+}
+
+button,
+a {
+  font-family: inherit;
+  text-decoration: none;
+}
+
+
+/* ================================
+   TOPBAR
+================================ */
+
+.topbar {
+  grid-area: topbar;
+
+  padding: 0 32px;
+
+  background: var(--color-surface);
+
+  border-bottom:
+    1px solid var(--color-border);
+
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 20px;
+}
+
+.topbar-title {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.brand-icon {
+  width: 38px;
+  height: 38px;
+
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  background: #CCFBF1;
+  color: var(--color-primary-dark);
+
+  border: 1px solid #99F6E4;
+
+  font-size: 17px;
+}
+
+.topbar-title h1 {
+  color: var(--color-text);
+
+  font-size: 18px;
+  font-weight: 600;
+
+  letter-spacing: -0.3px;
+}
+
+.topbar-title p {
+  margin-top: 2px;
+
+  color: var(--color-muted);
+
+  font-size: 11.5px;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.back-btn,
+.print-btn {
+  height: 36px;
+  padding: 0 14px;
+
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  font-size: 13px;
+  font-weight: 500;
+
+  cursor: pointer;
+}
+
+.back-btn {
+  background: #FFFFFF;
+  color: #334155;
+
+  border:
+    1px solid var(--color-border);
+}
+
+.back-btn:hover {
+  color: var(--color-primary);
+
+  border-color:
+    var(--color-primary);
+
+  background: #F0FDFA;
+}
+
+.print-btn {
+  background:
+    var(--color-primary);
+
+  color: #FFFFFF;
+
+  border:
+    1px solid var(--color-primary);
+}
+
+.print-btn:hover {
+  background:
+    var(--color-primary-dark);
+
+  border-color:
+    var(--color-primary-dark);
+}
+
+
+/* ================================
+   CONTENU
+================================ */
+
+.content {
+  grid-area: content;
+
+  padding: 24px 32px 34px;
+}
+
+.bulletin-document {
+  width: 100%;
+  max-width: 1120px;
+
+  margin: 0 auto;
+
+  background:
+    var(--color-surface);
+
+  border:
+    1px solid var(--color-border);
+
+  box-shadow:
+    var(--shadow-card);
+}
+
+
+/* ================================
+   EN-TÊTE DOCUMENT
+================================ */
+
+.bulletin-header {
+  min-height: 128px;
+
+  padding: 26px 28px;
+
+  border-top:
+    6px solid var(--color-primary);
+
+  border-bottom:
+    1px solid var(--color-border);
+
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 30px;
+}
+
+.document-label {
+  color:
+    var(--color-primary);
+
+  font-size: 11px;
+  font-weight: 700;
+
+  letter-spacing: 0.9px;
+  text-transform: uppercase;
+}
+
+.bulletin-header h2 {
+  margin-top: 7px;
+
+  color:
+    var(--color-text);
+
+  font-size: 26px;
+  font-weight: 600;
+
+  letter-spacing: -0.7px;
+}
+
+.bulletin-header p {
+  margin-top: 5px;
+
+  color:
+    var(--color-muted);
+
+  font-size: 12.5px;
+}
+
+.document-reference {
+  min-width: 190px;
+
+  padding-left: 22px;
+
+  border-left:
+    1px solid var(--color-border);
+}
+
+.document-reference span {
+  display: block;
+
+  margin-bottom: 5px;
+
+  color:
+    var(--color-muted);
+
+  font-size: 10px;
+  font-weight: 500;
+
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.document-reference strong {
+  display: block;
+
+  color:
+    var(--color-text);
+
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.document-reference small {
+  display: block;
+
+  margin-top: 5px;
+
+  color:
+    var(--color-muted);
+
+  font-size: 11px;
+}
+
+
+/* ================================
+   IDENTITÉ
+================================ */
+
+.student-identity {
+  margin: 20px 28px 0;
+
+  padding: 17px 18px;
+
+  display: grid;
+
+  grid-template-columns:
+    48px
+    minmax(220px, 1fr)
+    140px
+    170px;
+
+  align-items: center;
+
+  gap: 16px;
+
+  background: #F0FDFA;
+
+  border:
+    1px solid #CCFBF1;
+}
+
+.student-avatar {
+  width: 44px;
+  height: 44px;
+
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  background: #CCFBF1;
+  color:
+    var(--color-primary-dark);
+
+  border:
+    1px solid #99F6E4;
+
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.identity-main span,
+.identity-item span {
+  display: block;
+
+  margin-bottom: 4px;
+
+  color:
+    var(--color-muted);
+
+  font-size: 10px;
+  font-weight: 500;
+
+  letter-spacing: 0.45px;
+  text-transform: uppercase;
+}
+
+.identity-main h3 {
+  color:
+    var(--color-text);
+
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.identity-item {
+  padding-left: 16px;
+
+  border-left:
+    1px solid #99F6E4;
+}
+
+.identity-item strong {
+  color:
+    var(--color-text);
+
+  font-size: 13px;
+  font-weight: 600;
+}
+
+
+/* ================================
+   STATISTIQUES
+================================ */
+
+.statistics-grid {
+  margin: 16px 28px 0;
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(5, 1fr);
+
+  border-top:
+    1px solid var(--color-border);
+
+  border-left:
+    1px solid var(--color-border);
+}
+
+.stat-card {
+  min-height: 92px;
+
+  padding: 16px;
+
+  background:
+    var(--color-surface);
+
+  border-right:
+    1px solid var(--color-border);
+
+  border-bottom:
+    1px solid var(--color-border);
+}
+
+.stat-card span {
+  display: block;
+
+  margin-bottom: 8px;
+
+  color:
+    var(--color-muted);
+
+  font-size: 10.5px;
+  font-weight: 500;
+}
+
+.stat-card strong {
+  display: block;
+
+  color:
+    var(--color-text);
+
+  font-size: 18px;
+  font-weight: 650;
+}
+
+.stat-card small {
+  display: block;
+
+  margin-top: 4px;
+
+  color:
+    var(--color-muted);
+
+  font-size: 10px;
+}
+
+.stat-primary {
+  background: #F0FDFA;
+}
+
+.stat-primary strong {
+  color:
+    var(--color-primary-dark);
+
+  font-size: 22px;
+}
+
+
+/* ================================
+   SECTION DES NOTES
+================================ */
+
+.notes-section {
+  margin: 20px 28px 0;
+
+  border:
+    1px solid var(--color-border);
+}
+
+.section-heading {
+  min-height: 66px;
+
+  padding: 13px 16px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  border-bottom:
+    1px solid var(--color-border);
+}
+
+.section-heading h3 {
+  color:
+    var(--color-text);
+
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.section-heading p {
+  margin-top: 3px;
+
+  color:
+    var(--color-muted);
+
+  font-size: 11.5px;
+}
+
+.mention-badge {
+  min-width: 90px;
+  min-height: 28px;
+
+  padding: 5px 10px;
+
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  background: #F1F5F9;
+  color: #475569;
+
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.mention-success {
+  background: #DCFCE7;
+  color:
+    var(--color-success);
+}
+
+.mention-warning {
+  background: #FEF3C7;
+  color:
+    var(--color-warning);
+}
+
+.mention-danger {
+  background: #FEE2E2;
+  color:
+    var(--color-danger);
+}
+
+.mention-info {
+  background: #DBEAFE;
+  color:
+    var(--color-info);
+}
+
+
+/* ================================
+   TABLEAU
+================================ */
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+.bulletin-table {
+  width: 100%;
+
+  min-width: 760px;
+
+  border-collapse: collapse;
+}
+
+.bulletin-table th,
+.bulletin-table td {
+  padding: 11px 14px;
+
+  border-bottom:
+    1px solid var(--color-border);
+
+  text-align: left;
+
+  font-size: 12.5px;
+}
+
+.bulletin-table th {
+  background: #F8FAFC;
+  color: #475569;
+
+  font-size: 11px;
+  font-weight: 600;
+
+  letter-spacing: 0.15px;
+}
+
+.bulletin-table td {
+  color:
+    var(--color-text);
+}
+
+.bulletin-table tr:last-child td {
+  border-bottom: none;
+}
+
+.bulletin-table .center {
+  text-align: center;
+}
+
+.note-value {
+  font-weight: 700;
+}
+
+.coefficient-badge {
+  min-width: 30px;
+  height: 24px;
+
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  background: #F0FDFA;
+  color:
+    var(--color-primary-dark);
+
+  border:
+    1px solid #CCFBF1;
+
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.observation {
+  font-weight: 500;
+}
+
+.observation-success {
+  color:
+    var(--color-success);
+}
+
+.observation-warning {
+  color:
+    var(--color-warning);
+}
+
+.observation-danger {
+  color:
+    var(--color-danger);
+}
+
+.empty-cell {
+  padding: 28px !important;
+
+  color:
+    var(--color-muted) !important;
+
+  text-align: center !important;
+}
+
+
+/* ================================
+   APPRÉCIATION
+================================ */
+
+.appreciation-section {
+  margin: 18px 28px 0;
+
+  padding: 17px 18px;
+
+  display: flex;
+  align-items: flex-start;
+
+  gap: 14px;
+
+  background: #F8FAFC;
+
+  border-left:
+    4px solid var(--color-primary);
+
+  border-top:
+    1px solid var(--color-border);
+
+  border-right:
+    1px solid var(--color-border);
+
+  border-bottom:
+    1px solid var(--color-border);
+}
+
+.appreciation-icon {
+  width: 36px;
+  height: 36px;
+
+  flex-shrink: 0;
+
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  background: #CCFBF1;
+  color:
+    var(--color-primary-dark);
+
+  border:
+    1px solid #99F6E4;
+
+  font-size: 16px;
+}
+
+.appreciation-section span {
+  display: block;
+
+  margin-bottom: 4px;
+
+  color:
+    var(--color-muted);
+
+  font-size: 10px;
+  font-weight: 500;
+
+  letter-spacing: 0.45px;
+  text-transform: uppercase;
+}
+
+.appreciation-section strong {
+  display: block;
+
+  color:
+    var(--color-primary-dark);
+
+  font-size: 16px;
+  font-weight: 650;
+}
+
+.appreciation-section p {
+  margin-top: 5px;
+
+  color:
+    var(--color-muted);
+
+  font-size: 11.5px;
+  line-height: 1.5;
+}
+
+
+/* ================================
+   SIGNATURES
+================================ */
+
+.signatures-section {
+  padding: 48px 28px 34px;
+
+  display: grid;
+
+  grid-template-columns:
+    1fr
+    1fr;
+
+  gap: 90px;
+}
+
+.signature-block {
+  text-align: center;
+}
+
+.signature-space {
+  height: 40px;
+
+  border-bottom:
+    1px solid #CBD5E1;
+}
+
+.signature-block p {
+  margin-top: 8px;
+
+  color:
+    var(--color-muted);
+
+  font-size: 11px;
+}
+
+
+/* ================================
+   PIED DU DOCUMENT
+================================ */
+
+.document-footer {
+  min-height: 42px;
+
+  padding: 11px 28px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  background: #F8FAFC;
+
+  border-top:
+    1px solid var(--color-border);
+
+  color:
+    var(--color-muted);
+
+  font-size: 10.5px;
+}
+
+
+/* ================================
+   ERREUR
+================================ */
+
+.error-card {
+  max-width: 580px;
+
+  margin: 80px auto;
+
+  padding: 40px 30px;
+
+  background:
+    var(--color-surface);
+
+  border:
+    1px solid var(--color-border);
+
+  box-shadow:
+    var(--shadow-card);
+
+  text-align: center;
+}
+
+.error-card i {
+  color:
+    var(--color-danger);
+
+  font-size: 34px;
+}
+
+.error-card h2 {
+  margin-top: 14px;
+
+  font-size: 19px;
+}
+
+.error-card p {
+  margin-top: 7px;
+
+  color:
+    var(--color-muted);
+
+  font-size: 13px;
+}
+
+.error-card a {
+  height: 36px;
+
+  margin-top: 20px;
+  padding: 0 15px;
+
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  background:
+    var(--color-primary);
+
+  color: #FFFFFF;
+
+  font-size: 13px;
+  font-weight: 500;
+}
+
+
+/* ================================
+   PIED DE PAGE PRINCIPAL
+================================ */
+
+.page-footer {
+  grid-area: footer;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  background:
+    var(--color-surface);
+
+  border-top:
+    1px solid var(--color-border);
+
+  color:
+    var(--color-muted);
+
+  font-size: 11.5px;
+}
+
+
+/* ================================
+   RESPONSIVE
+================================ */
+
+@media (max-width: 950px) {
+
+  body {
+    display: block;
+  }
+
+  .topbar {
+    min-height: 68px;
+
+    padding: 14px 16px;
+
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .topbar-actions {
+    width: 100%;
+  }
+
+  .back-btn,
+  .print-btn {
+    flex: 1;
+  }
+
+  .content {
+    padding: 16px 12px;
+  }
+
+  .bulletin-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .document-reference {
+    width: 100%;
+
+    padding-top: 15px;
+    padding-left: 0;
+
+    border-top:
+      1px solid var(--color-border);
+
+    border-left: none;
+  }
+
+  .student-identity {
+    grid-template-columns:
+      48px
+      1fr;
+  }
+
+  .identity-item {
+    padding-top: 10px;
+    padding-left: 0;
+
+    border-top:
+      1px solid #99F6E4;
+
+    border-left: none;
+  }
+
+  .statistics-grid {
+    grid-template-columns:
+      repeat(2, 1fr);
+  }
+
+  .signatures-section {
+    gap: 35px;
+  }
+
+  .page-footer {
+    min-height: 38px;
+  }
+
+}
+
+
+@media (max-width: 600px) {
+
+  .statistics-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .section-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .mention-badge {
+    width: 100%;
+  }
+
+  .signatures-section {
+    grid-template-columns: 1fr;
+  }
+
+  .document-footer {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+}
+
+
+/* ================================
+   IMPRESSION
+================================ */
+
+@media print {
+
+  @page {
+    size: A4;
+    margin: 10mm;
+  }
+
+  body {
+    display: block;
+
+    background: #FFFFFF;
+  }
+
+  .topbar,
+  .page-footer {
+    display: none !important;
+  }
+
+  .content {
+    padding: 0;
+  }
+
+  .bulletin-document {
+    max-width: none;
+
+    border:
+      1px solid #D1D5DB;
+
+    box-shadow: none;
+  }
+
+  .bulletin-header {
+    min-height: auto;
+  }
+
+  .student-identity,
+  .statistics-grid,
+  .notes-section,
+  .appreciation-section {
+    break-inside: avoid;
+  }
+
+  .statistics-grid {
+    grid-template-columns:
+      repeat(5, 1fr);
+  }
+
+}
+
