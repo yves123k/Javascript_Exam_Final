@@ -1,3 +1,5 @@
+"use strict";
+
 // ============================================================
 // DONNÉES + LOCALSTORAGE
 // ============================================================
@@ -29,7 +31,10 @@ const MATIERES_PAR_DEFAUT = [
 ];
 
 
-// Charge une valeur depuis le localStorage
+// ============================================================
+// GESTION DU LOCALSTORAGE
+// ============================================================
+
 function chargerDepuisLocalStorage(cle, valeurParDefaut) {
   try {
     const donnees = localStorage.getItem(cle);
@@ -55,7 +60,6 @@ function chargerDepuisLocalStorage(cle, valeurParDefaut) {
 }
 
 
-// Enregistre une valeur dans le localStorage
 function enregistrerDansLocalStorage(cle, valeur) {
   try {
     localStorage.setItem(
@@ -65,28 +69,79 @@ function enregistrerDansLocalStorage(cle, valeur) {
 
   } catch (erreur) {
     console.error(
-      "Erreur lors de l'enregistrement :",
+      "Erreur lors de l'enregistrement dans le localStorage :",
       erreur
     );
   }
 }
 
 
-// Charger les étudiants
+// ============================================================
+// CHARGEMENT ET CORRECTION DES DONNÉES
+// ============================================================
+
 let etudiants = chargerDepuisLocalStorage(
   CLE_ETUDIANTS,
   []
 );
 
-
-// Charger les matières
 let matieres = chargerDepuisLocalStorage(
   CLE_MATIERES,
   MATIERES_PAR_DEFAUT
 );
 
 
-// Enregistrer les matières par défaut au premier lancement
+// Corrige automatiquement les anciens étudiants
+// qui ne possèdent pas encore de tableau notes.
+
+etudiants = etudiants.map(function (etudiant) {
+  return {
+    id: etudiant.id || genId(),
+
+    nom:
+      typeof etudiant.nom === "string"
+        ? etudiant.nom
+        : "Étudiant",
+
+    sexe:
+      typeof etudiant.sexe === "string"
+        ? etudiant.sexe
+        : "—",
+
+    date:
+      typeof etudiant.date === "string"
+        ? etudiant.date
+        : new Date().toLocaleDateString("fr-FR"),
+
+    notes:
+      Array.isArray(etudiant.notes)
+        ? etudiant.notes
+        : []
+  };
+});
+
+
+// Corrige également les anciennes matières.
+
+matieres = matieres.map(function (matiere) {
+  return {
+    id: matiere.id || genId(),
+
+    nom:
+      typeof matiere.nom === "string"
+        ? matiere.nom
+        : "Matière",
+
+    coefficient:
+      Number(matiere.coefficient) > 0
+        ? Number(matiere.coefficient)
+        : 1
+  };
+});
+
+
+// Enregistrer les matières par défaut au premier lancement.
+
 if (localStorage.getItem(CLE_MATIERES) === null) {
   enregistrerDansLocalStorage(
     CLE_MATIERES,
@@ -95,7 +150,19 @@ if (localStorage.getItem(CLE_MATIERES) === null) {
 }
 
 
-// Sauvegarde des étudiants
+// Enregistrer les données corrigées.
+
+enregistrerDansLocalStorage(
+  CLE_ETUDIANTS,
+  etudiants
+);
+
+enregistrerDansLocalStorage(
+  CLE_MATIERES,
+  matieres
+);
+
+
 function sauvegarderEtudiants() {
   enregistrerDansLocalStorage(
     CLE_ETUDIANTS,
@@ -104,11 +171,10 @@ function sauvegarderEtudiants() {
 }
 
 
-// Recharge les matières depuis le localStorage
 function rechargerMatieres() {
   matieres = chargerDepuisLocalStorage(
     CLE_MATIERES,
-    MATIERES_PAR_DEFAUT
+    []
   );
 }
 
@@ -127,9 +193,27 @@ function genId() {
 }
 
 
+function echapperHTML(valeur) {
+  return String(valeur)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+
 function getInitiales(nom) {
-  const mots = nom
-    .trim()
+  const nomValide =
+    typeof nom === "string"
+      ? nom.trim()
+      : "";
+
+  if (nomValide === "") {
+    return "ET";
+  }
+
+  const mots = nomValide
     .split(/\s+/)
     .filter(Boolean);
 
@@ -140,91 +224,55 @@ function getInitiales(nom) {
     ).toUpperCase();
   }
 
-  return nom
+  return nomValide
     .substring(0, 2)
     .toUpperCase();
 }
 
 
 function calculerMoyenne(notes) {
-  if (!notes || notes.length === 0) {
+  const listeNotes =
+    Array.isArray(notes)
+      ? notes
+      : [];
+
+  if (listeNotes.length === 0) {
     return "—";
   }
 
   let totalPoints = 0;
-  let totalCoeff = 0;
+  let totalCoefficients = 0;
 
-  for (const note of notes) {
-    totalPoints += (
-      Number(note.valeur)
-      * Number(note.coefficient)
-    );
+  for (const note of listeNotes) {
+    const valeur = Number(note.valeur);
+    const coefficient = Number(note.coefficient);
 
-    totalCoeff += Number(
-      note.coefficient
-    );
+    if (
+      !Number.isNaN(valeur)
+      && coefficient > 0
+    ) {
+      totalPoints += valeur * coefficient;
+      totalCoefficients += coefficient;
+    }
   }
 
-  if (totalCoeff === 0) {
+  if (totalCoefficients === 0) {
     return "—";
   }
 
   return (
-    totalPoints / totalCoeff
+    totalPoints / totalCoefficients
   ).toFixed(2);
 }
 
 
 function getMention(moyenne) {
-  const m = parseFloat(moyenne);
+  const valeur = parseFloat(moyenne);
 
-  if (isNaN(m)) {
+  if (Number.isNaN(valeur)) {
     return {
       texte: "—",
       classe: ""
-    };
-  }
-
-  if (m >= 16) {
-    return {
-      texte: "Très bien",
-      classe: "badge-success"
-    };
-  }
-
-  if (m >= 14) {
-    return {
-      texte: "Bien",
-      classe: "badge-success"
-    };
-  }
-
-  if (m >= 12) {
-    return {
-      texte: "Assez bien",
-      classe: "badge-info"
-    };
-  }
-
-  if (m >= 10) {
-    return {
-      texte: "Passable",
-      classe: "badge-warning"
-    };
-  }
-
-  return {
-    texte: "Insuffisant",
-    classe: "badge-danger"
-  };
-}
-
-
-function getObservation(valeur) {
-  if (valeur >= 18) {
-    return {
-      texte: "Excellent",
-      classe: "badge-success"
     };
   }
 
@@ -263,20 +311,70 @@ function getObservation(valeur) {
 }
 
 
+function getObservation(valeur) {
+  const note = Number(valeur);
+
+  if (note >= 18) {
+    return {
+      texte: "Excellent",
+      classe: "badge-success"
+    };
+  }
+
+  if (note >= 16) {
+    return {
+      texte: "Très bien",
+      classe: "badge-success"
+    };
+  }
+
+  if (note >= 14) {
+    return {
+      texte: "Bien",
+      classe: "badge-success"
+    };
+  }
+
+  if (note >= 12) {
+    return {
+      texte: "Assez bien",
+      classe: "badge-info"
+    };
+  }
+
+  if (note >= 10) {
+    return {
+      texte: "Passable",
+      classe: "badge-warning"
+    };
+  }
+
+  return {
+    texte: "Insuffisant",
+    classe: "badge-danger"
+  };
+}
+
+
 function getClassement(id) {
   const moyennes = etudiants.map(function (etudiant) {
+    const notes =
+      Array.isArray(etudiant.notes)
+        ? etudiant.notes
+        : [];
+
     return {
       id: etudiant.id,
 
-      moy:
+      moyenne:
         parseFloat(
-          calculerMoyenne(etudiant.notes)
+          calculerMoyenne(notes)
         ) || 0
     };
   });
 
   moyennes.sort(function (a, b) {
-    return b.moy - a.moy;
+    return b.moyenne - a.moyenne;
   });
 
   const rang = moyennes.findIndex(
@@ -304,11 +402,16 @@ function getClassement(id) {
 
 
 // ============================================================
-// CONSTRUCTION DES NOTES
+// CONSTRUCTION DES LIGNES DE NOTES
 // ============================================================
 
-function buildLignesNotes(notes, etuId) {
-  if (!notes || notes.length === 0) {
+function buildLignesNotes(notes, etudiantId) {
+  const listeNotes =
+    Array.isArray(notes)
+      ? notes
+      : [];
+
+  if (listeNotes.length === 0) {
     return `
       <tr>
         <td
@@ -321,30 +424,32 @@ function buildLignesNotes(notes, etuId) {
     `;
   }
 
-  return notes.map(function (note) {
+  return listeNotes.map(function (note) {
     const observation = getObservation(
-      Number(note.valeur)
+      note.valeur
     );
 
     return `
       <tr
-        data-note-id="${note.id}"
-        data-etu-id="${etuId}"
+        data-note-id="${echapperHTML(note.id)}"
+        data-etu-id="${echapperHTML(etudiantId)}"
       >
 
         <td>
-          ${note.matiere}
+          ${echapperHTML(note.matiere)}
         </td>
 
         <td>
           <span class="coeff-badge">
-            ${note.coefficient}
+            ${echapperHTML(note.coefficient)}
           </span>
         </td>
 
         <td>
           <strong>
-            ${Number(note.valeur).toFixed(2)}
+            ${Number(note.valeur)
+              .toFixed(2)
+              .replace(".", ",")}
           </strong>
         </td>
 
@@ -359,7 +464,7 @@ function buildLignesNotes(notes, etuId) {
           <button
             class="delete-note-btn"
             type="button"
-            aria-label="Supprimer la note de ${note.matiere}"
+            aria-label="Supprimer la note de ${echapperHTML(note.matiere)}"
           >
             <i class="bi bi-trash3"></i>
           </button>
@@ -373,31 +478,43 @@ function buildLignesNotes(notes, etuId) {
 
 
 // ============================================================
-// OPTIONS DES MATIÈRES
+// CONSTRUCTION DES OPTIONS DE MATIÈRES
 // ============================================================
 
-function buildOptionsMatieres(notesExistantes) {
-  const matieresNotees = notesExistantes.map(
+function buildOptionsMatieres(notesExistantes = []) {
+  const notes =
+    Array.isArray(notesExistantes)
+      ? notesExistantes
+      : [];
+
+  const listeMatieres =
+    Array.isArray(matieres)
+      ? matieres
+      : [];
+
+  const matieresNotees = notes.map(
     function (note) {
-      return note.matiere;
+      return String(
+        note.matiere || ""
+      ).toLowerCase();
     }
   );
 
-  const options = matieres
+  const options = listeMatieres
 
     .filter(function (matiere) {
       return !matieresNotees.includes(
-        matiere.nom
+        String(matiere.nom).toLowerCase()
       );
     })
 
     .map(function (matiere) {
       return `
         <option
-          value="${matiere.nom}"
-          data-coeff="${matiere.coefficient}"
+          value="${echapperHTML(matiere.nom)}"
+          data-coeff="${echapperHTML(matiere.coefficient)}"
         >
-          ${matiere.nom}
+          ${echapperHTML(matiere.nom)}
         </option>
       `;
     })
@@ -415,12 +532,17 @@ function buildOptionsMatieres(notesExistantes) {
 
 
 // ============================================================
-// CONSTRUCTION D'UN ÉTUDIANT
+// CONSTRUCTION D'UN BLOC ÉTUDIANT
 // ============================================================
 
 function buildBlocEtudiant(etudiant) {
+  const notes =
+    Array.isArray(etudiant.notes)
+      ? etudiant.notes
+      : [];
+
   const moyenne = calculerMoyenne(
-    etudiant.notes
+    notes
   );
 
   const mention = getMention(
@@ -436,12 +558,12 @@ function buildBlocEtudiant(etudiant) {
   );
 
   const lignes = buildLignesNotes(
-    etudiant.notes,
+    notes,
     etudiant.id
   );
 
   const options = buildOptionsMatieres(
-    etudiant.notes
+    notes
   );
 
   const moyenneAffichee =
@@ -452,7 +574,7 @@ function buildBlocEtudiant(etudiant) {
   return `
     <details
       class="student-row"
-      data-id="${etudiant.id}"
+      data-id="${echapperHTML(etudiant.id)}"
     >
 
       <summary class="student-summary">
@@ -460,18 +582,18 @@ function buildBlocEtudiant(etudiant) {
         <div class="student-left">
 
           <span class="avatar avatar-main">
-            ${initiales}
+            ${echapperHTML(initiales)}
           </span>
 
           <div>
 
             <h3>
-              ${etudiant.nom}
+              ${echapperHTML(etudiant.nom)}
             </h3>
 
             <p>
-              Sexe: ${etudiant.sexe}
-              — Ajouté le ${etudiant.date}
+              Sexe: ${echapperHTML(etudiant.sexe)}
+              — Ajouté le ${echapperHTML(etudiant.date)}
             </p>
 
           </div>
@@ -570,7 +692,7 @@ function buildBlocEtudiant(etudiant) {
           <button
             type="button"
             class="delete-student-btn"
-            data-id="${etudiant.id}"
+            data-id="${echapperHTML(etudiant.id)}"
           >
             <i class="bi bi-person-x"></i>
             Supprimer l'étudiant
@@ -579,7 +701,7 @@ function buildBlocEtudiant(etudiant) {
           <button
             type="button"
             class="bulletin-btn"
-            data-id="${etudiant.id}"
+            data-id="${echapperHTML(etudiant.id)}"
           >
             <i class="bi bi-printer"></i>
             Générer le bulletin
@@ -603,6 +725,10 @@ function renderListe(idAOuvrir = null) {
     ".students-list"
   );
 
+  if (!container) {
+    return;
+  }
+
   const lignesOuvertes = Array.from(
     container.querySelectorAll(
       ".student-row[open]"
@@ -615,10 +741,10 @@ function renderListe(idAOuvrir = null) {
     idAOuvrir
     && !lignesOuvertes.includes(idAOuvrir)
   ) {
-    lignesOuvertes.push(idAOuvrir);
+    lignesOuvertes.push(
+      idAOuvrir
+    );
   }
-
-  container.innerHTML = "";
 
   if (etudiants.length === 0) {
     container.innerHTML = `
@@ -636,14 +762,11 @@ function renderListe(idAOuvrir = null) {
     return;
   }
 
-  for (const etudiant of etudiants) {
-    container.insertAdjacentHTML(
-      "beforeend",
-      buildBlocEtudiant(etudiant)
-    );
-  }
+  container.innerHTML = etudiants
+    .map(buildBlocEtudiant)
+    .join("");
 
-  document
+  container
     .querySelectorAll(".student-row")
     .forEach(function (ligne) {
       if (
@@ -654,6 +777,8 @@ function renderListe(idAOuvrir = null) {
         ligne.open = true;
       }
     });
+
+  appliquerRecherche();
 }
 
 
@@ -661,329 +786,533 @@ function renderListe(idAOuvrir = null) {
 // AJOUT D'UN ÉTUDIANT
 // ============================================================
 
-document
-  .querySelector(
-    ".student-entry-form button[type='button']"
-  )
-  .addEventListener("click", function () {
+const formulaireEtudiant = document.querySelector(
+  ".student-entry-form"
+);
 
-    const form = document.querySelector(
-      ".student-entry-form"
-    );
+if (formulaireEtudiant) {
+  formulaireEtudiant
+    .querySelector("button[type='button']")
+    .addEventListener("click", function () {
 
-    const nom = form
-      .querySelector("input[type='text']")
-      .value
-      .trim();
-
-    const sexe = form
-      .querySelector("select")
-      .value;
-
-    if (nom === "") {
-      alert(
-        "Veuillez saisir le nom de l'étudiant."
+      const champNom = formulaireEtudiant.querySelector(
+        "input[type='text']"
       );
 
-      return;
-    }
-
-    if (sexe === "") {
-      alert(
-        "Veuillez sélectionner le sexe."
+      const champSexe = formulaireEtudiant.querySelector(
+        "select"
       );
 
-      return;
-    }
+      const nom = champNom.value.trim();
+      const sexe = champSexe.value;
 
-    const nouvelEtudiant = {
-      id: genId(),
-      nom: nom,
-      sexe: sexe,
+      if (nom === "") {
+        alert(
+          "Veuillez saisir le nom de l'étudiant."
+        );
 
-      date: new Date()
-        .toLocaleDateString("fr-FR"),
-
-      notes: []
-    };
-
-    etudiants.push(
-      nouvelEtudiant
-    );
-
-    sauvegarderEtudiants();
-
-    form
-      .querySelector("input[type='text']")
-      .value = "";
-
-    form
-      .querySelector("select")
-      .value = "";
-
-    renderListe();
-  });
-
-
-// ============================================================
-// AJOUT D'UNE NOTE
-// ============================================================
-
-document
-  .querySelector(".students-list")
-  .addEventListener("click", function (event) {
-
-    const bouton = event.target.closest(
-      ".add-note-btn"
-    );
-
-    if (!bouton) {
-      return;
-    }
-
-    const panneau = bouton.closest(
-      ".student-panel"
-    );
-
-    const etudiantId = bouton
-      .closest(".student-row")
-      .dataset
-      .id;
-
-    const select = panneau.querySelector(
-      ".select-matiere"
-    );
-
-    const input = panneau.querySelector(
-      ".input-note"
-    );
-
-    const matiere = select.value;
-
-    const optionSelectionnee =
-      select.options[
-        select.selectedIndex
-      ];
-
-    const coefficient = parseInt(
-      optionSelectionnee?.dataset?.coeff
-    ) || 1;
-
-    const valeur = parseFloat(
-      input.value
-    );
-
-    if (!matiere) {
-      alert(
-        "Veuillez choisir une matière."
-      );
-
-      return;
-    }
-
-    if (
-      isNaN(valeur)
-      || valeur < 0
-      || valeur > 20
-    ) {
-      alert(
-        "Veuillez saisir une note valide entre 0 et 20."
-      );
-
-      return;
-    }
-
-    const etudiant = etudiants.find(
-      function (element) {
-        return element.id === etudiantId;
+        champNom.focus();
+        return;
       }
-    );
 
-    if (!etudiant) {
-      return;
-    }
+      if (sexe === "") {
+        alert(
+          "Veuillez sélectionner le sexe."
+        );
 
-    etudiant.notes.push({
-      id: genId(),
-      matiere: matiere,
-      coefficient: coefficient,
-      valeur: valeur
+        champSexe.focus();
+        return;
+      }
+
+      const nouvelEtudiant = {
+        id: genId(),
+        nom: nom,
+        sexe: sexe,
+
+        date: new Date()
+          .toLocaleDateString("fr-FR"),
+
+        notes: []
+      };
+
+      etudiants.push(
+        nouvelEtudiant
+      );
+
+      sauvegarderEtudiants();
+
+      formulaireEtudiant.reset();
+
+      renderListe(
+        nouvelEtudiant.id
+      );
     });
-
-    sauvegarderEtudiants();
-
-    select.value = "";
-    input.value = "";
-
-    renderListe(
-      etudiantId
-    );
-  });
+}
 
 
 // ============================================================
-// SUPPRESSION D'UNE NOTE
+// ACTIONS SUR LA LISTE DES ÉTUDIANTS
 // ============================================================
 
-document
-  .querySelector(".students-list")
-  .addEventListener("click", function (event) {
+const listeEtudiants = document.querySelector(
+  ".students-list"
+);
 
-    const bouton = event.target.closest(
-      ".delete-note-btn"
-    );
+if (listeEtudiants) {
+  listeEtudiants.addEventListener(
+    "click",
+    function (event) {
 
-    if (!bouton) {
-      return;
-    }
+      const boutonAjouterNote = event.target.closest(
+        ".add-note-btn"
+      );
 
-    const ligne = bouton.closest("tr");
+      const boutonSupprimerNote = event.target.closest(
+        ".delete-note-btn"
+      );
 
-    const noteId =
-      ligne.dataset.noteId;
+      const boutonSupprimerEtudiant = event.target.closest(
+        ".delete-student-btn"
+      );
 
-    const etudiantId =
-      ligne.dataset.etuId;
+      const boutonBulletin = event.target.closest(
+        ".bulletin-btn"
+      );
 
-    if (
-      !confirm(
-        "Supprimer cette note ?"
-      )
-    ) {
-      return;
-    }
 
-    const etudiant = etudiants.find(
-      function (element) {
-        return element.id === etudiantId;
+      // ------------------------------------------------------
+      // AJOUT D'UNE NOTE
+      // ------------------------------------------------------
+
+      if (boutonAjouterNote) {
+        const ligneEtudiant = boutonAjouterNote.closest(
+          ".student-row"
+        );
+
+        const panneau = boutonAjouterNote.closest(
+          ".student-panel"
+        );
+
+        const select = panneau.querySelector(
+          ".select-matiere"
+        );
+
+        const input = panneau.querySelector(
+          ".input-note"
+        );
+
+        const etudiantId =
+          ligneEtudiant.dataset.id;
+
+        const matiere =
+          select.value;
+
+        const optionSelectionnee =
+          select.options[
+            select.selectedIndex
+          ];
+
+        const coefficient = Number(
+          optionSelectionnee?.dataset?.coeff
+        );
+
+        const valeur = Number(
+          input.value
+        );
+
+        if (!matiere) {
+          alert(
+            "Veuillez choisir une matière."
+          );
+
+          select.focus();
+          return;
+        }
+
+        if (
+          input.value === ""
+          || Number.isNaN(valeur)
+          || valeur < 0
+          || valeur > 20
+        ) {
+          alert(
+            "Veuillez saisir une note valide entre 0 et 20."
+          );
+
+          input.focus();
+          return;
+        }
+
+        const etudiant = etudiants.find(
+          function (element) {
+            return element.id === etudiantId;
+          }
+        );
+
+        if (!etudiant) {
+          return;
+        }
+
+        if (!Array.isArray(etudiant.notes)) {
+          etudiant.notes = [];
+        }
+
+        etudiant.notes.push({
+          id: genId(),
+          matiere: matiere,
+
+          coefficient:
+            coefficient > 0
+              ? coefficient
+              : 1,
+
+          valeur: valeur
+        });
+
+        sauvegarderEtudiants();
+
+        renderListe(
+          etudiantId
+        );
+
+        return;
       }
-    );
 
-    if (!etudiant) {
-      return;
-    }
 
-    etudiant.notes = etudiant.notes.filter(
-      function (note) {
-        return note.id !== noteId;
+      // ------------------------------------------------------
+      // SUPPRESSION D'UNE NOTE
+      // ------------------------------------------------------
+
+      if (boutonSupprimerNote) {
+        const ligneNote = boutonSupprimerNote.closest(
+          "tr"
+        );
+
+        const noteId =
+          ligneNote.dataset.noteId;
+
+        const etudiantId =
+          ligneNote.dataset.etuId;
+
+        if (
+          !confirm(
+            "Supprimer cette note ?"
+          )
+        ) {
+          return;
+        }
+
+        const etudiant = etudiants.find(
+          function (element) {
+            return element.id === etudiantId;
+          }
+        );
+
+        if (!etudiant) {
+          return;
+        }
+
+        const notes =
+          Array.isArray(etudiant.notes)
+            ? etudiant.notes
+            : [];
+
+        etudiant.notes = notes.filter(
+          function (note) {
+            return note.id !== noteId;
+          }
+        );
+
+        sauvegarderEtudiants();
+
+        renderListe(
+          etudiantId
+        );
+
+        return;
       }
-    );
-
-    sauvegarderEtudiants();
-
-    renderListe(
-      etudiantId
-    );
-  });
 
 
-// ============================================================
-// SUPPRESSION D'UN ÉTUDIANT
-// ============================================================
+      // ------------------------------------------------------
+      // SUPPRESSION D'UN ÉTUDIANT
+      // ------------------------------------------------------
 
-document
-  .querySelector(".students-list")
-  .addEventListener("click", function (event) {
+      if (boutonSupprimerEtudiant) {
+        const etudiantId =
+          boutonSupprimerEtudiant.dataset.id;
 
-    const bouton = event.target.closest(
-      ".delete-student-btn"
-    );
+        const etudiant = etudiants.find(
+          function (element) {
+            return element.id === etudiantId;
+          }
+        );
 
-    if (!bouton) {
-      return;
-    }
+        if (!etudiant) {
+          return;
+        }
 
-    const etudiantId =
-      bouton.dataset.id;
+        const confirmation = confirm(
+          "Supprimer « "
+          + etudiant.nom
+          + " » et toutes ses notes ?"
+        );
 
-    const etudiant = etudiants.find(
-      function (element) {
-        return element.id === etudiantId;
+        if (!confirmation) {
+          return;
+        }
+
+        etudiants = etudiants.filter(
+          function (element) {
+            return element.id !== etudiantId;
+          }
+        );
+
+        sauvegarderEtudiants();
+
+        renderListe();
+
+        return;
       }
-    );
 
-    if (!etudiant) {
-      return;
-    }
 
-    const confirmation = confirm(
-      "Supprimer « "
-      + etudiant.nom
-      + " » et toutes ses notes ?"
-    );
+      // ------------------------------------------------------
+      // REDIRECTION VERS LE BULLETIN
+      // ------------------------------------------------------
 
-    if (!confirmation) {
-      return;
-    }
+      if (boutonBulletin) {
+        const ligneEtudiant = boutonBulletin.closest(
+          ".student-row"
+        );
 
-    etudiants = etudiants.filter(
-      function (element) {
-        return element.id !== etudiantId;
+        if (!ligneEtudiant) {
+          return;
+        }
+
+        const etudiantId =
+          ligneEtudiant.dataset.id;
+
+        window.location.href =
+          "./bulletin.html?id="
+          + encodeURIComponent(etudiantId);
       }
-    );
-
-    sauvegarderEtudiants();
-
-    renderListe();
-  });
+    }
+  );
+}
 
 
 // ============================================================
 // RECHERCHE
 // ============================================================
 
-document
-  .querySelector(".search-bar input")
-  .addEventListener("input", function () {
+function appliquerRecherche() {
+  const champRecherche = document.querySelector(
+    ".search-bar input"
+  );
 
-    const terme = this
-      .value
-      .trim()
-      .toLowerCase();
+  const boutonEffacer = document.querySelector(
+    ".search-clear"
+  );
 
-    document
-      .querySelector(".search-clear")
-      .style
-      .display =
-        terme.length > 0
-          ? "flex"
+  if (!champRecherche || !boutonEffacer) {
+    return;
+  }
+
+  const terme = champRecherche
+    .value
+    .trim()
+    .toLowerCase();
+
+  boutonEffacer.style.display =
+    terme.length > 0
+      ? "flex"
+      : "none";
+
+  document
+    .querySelectorAll(".student-row")
+    .forEach(function (ligne) {
+
+      const titre = ligne.querySelector(
+        "h3"
+      );
+
+      const nom =
+        titre
+          ? titre.textContent.toLowerCase()
+          : "";
+
+      ligne.style.display =
+        nom.includes(terme)
+          ? ""
           : "none";
-
-    document
-      .querySelectorAll(".student-row")
-      .forEach(function (ligne) {
-
-        const nom = ligne
-          .querySelector("h3")
-          .textContent
-          .toLowerCase();
-
-        ligne.style.display =
-          nom.includes(terme)
-            ? ""
-            : "none";
-      });
-  });
+    });
+}
 
 
-document
-  .querySelector(".search-clear")
-  .addEventListener("click", function () {
+const champRecherche = document.querySelector(
+  ".search-bar input"
+);
 
-    const input = document.querySelector(
-      ".search-bar input"
-    );
+if (champRecherche) {
+  champRecherche.addEventListener(
+    "input",
+    appliquerRecherche
+  );
+}
 
-    input.value = "";
 
-    input.dispatchEvent(
-      new Event("input")
-    );
-  });
+const boutonEffacerRecherche = document.querySelector(
+  ".search-clear"
+);
+
+if (boutonEffacerRecherche) {
+  boutonEffacerRecherche.addEventListener(
+    "click",
+    function () {
+
+      if (!champRecherche) {
+        return;
+      }
+
+      champRecherche.value = "";
+
+      appliquerRecherche();
+
+      champRecherche.focus();
+    }
+  );
+}
 
 
 // ============================================================
-// SYNCHRONISATION AVEC LA PAGE MATIÈRES
+// EXPORT CSV
+// ============================================================
+
+const boutonExport = document.querySelector(
+  ".export-btn"
+);
+
+if (boutonExport) {
+  boutonExport.addEventListener(
+    "click",
+    function () {
+
+      if (etudiants.length === 0) {
+        alert(
+          "Aucun étudiant à exporter."
+        );
+
+        return;
+      }
+
+      const lignesCSV = [
+        [
+          "Étudiant",
+          "Sexe",
+          "Date",
+          "Matière",
+          "Coefficient",
+          "Note",
+          "Moyenne",
+          "Mention"
+        ]
+      ];
+
+      etudiants.forEach(function (etudiant) {
+        const notes =
+          Array.isArray(etudiant.notes)
+            ? etudiant.notes
+            : [];
+
+        const moyenne = calculerMoyenne(
+          notes
+        );
+
+        const mention = getMention(
+          moyenne
+        ).texte;
+
+        if (notes.length === 0) {
+          lignesCSV.push([
+            etudiant.nom,
+            etudiant.sexe,
+            etudiant.date,
+            "",
+            "",
+            "",
+            moyenne,
+            mention
+          ]);
+
+          return;
+        }
+
+        notes.forEach(function (note) {
+          lignesCSV.push([
+            etudiant.nom,
+            etudiant.sexe,
+            etudiant.date,
+            note.matiere,
+            note.coefficient,
+            note.valeur,
+            moyenne,
+            mention
+          ]);
+        });
+      });
+
+      const contenuCSV = lignesCSV
+        .map(function (ligne) {
+          return ligne
+            .map(function (cellule) {
+              return (
+                '"'
+                + String(cellule)
+                  .replaceAll('"', '""')
+                + '"'
+              );
+            })
+            .join(";");
+        })
+        .join("\n");
+
+      const fichier = new Blob(
+        [
+          "\uFEFF"
+          + contenuCSV
+        ],
+        {
+          type: "text/csv;charset=utf-8"
+        }
+      );
+
+      const url = URL.createObjectURL(
+        fichier
+      );
+
+      const lien = document.createElement(
+        "a"
+      );
+
+      lien.href = url;
+      lien.download = "bulletins-etudiants.csv";
+
+      document.body.appendChild(
+        lien
+      );
+
+      lien.click();
+      lien.remove();
+
+      URL.revokeObjectURL(
+        url
+      );
+    }
+  );
+}
+
+
+// ============================================================
+// SYNCHRONISATION ENTRE LES PAGES
 // ============================================================
 
 window.addEventListener(
@@ -992,16 +1321,27 @@ window.addEventListener(
 
     if (event.key === CLE_MATIERES) {
       rechargerMatieres();
-
       renderListe();
     }
 
     if (event.key === CLE_ETUDIANTS) {
-      etudiants =
-        chargerDepuisLocalStorage(
-          CLE_ETUDIANTS,
-          []
-        );
+      etudiants = chargerDepuisLocalStorage(
+        CLE_ETUDIANTS,
+        []
+      );
+
+      etudiants = etudiants.map(
+        function (etudiant) {
+          return {
+            ...etudiant,
+
+            notes:
+              Array.isArray(etudiant.notes)
+                ? etudiant.notes
+                : []
+          };
+        }
+      );
 
       renderListe();
     }
@@ -1009,11 +1349,30 @@ window.addEventListener(
 );
 
 
-// Recharge les matières quand l'utilisateur revient sur la page
+// Recharge les données lorsque l'utilisateur revient sur la page.
+
 window.addEventListener(
   "focus",
   function () {
     rechargerMatieres();
+
+    etudiants = chargerDepuisLocalStorage(
+      CLE_ETUDIANTS,
+      []
+    );
+
+    etudiants = etudiants.map(
+      function (etudiant) {
+        return {
+          ...etudiant,
+
+          notes:
+            Array.isArray(etudiant.notes)
+              ? etudiant.notes
+              : []
+        };
+      }
+    );
 
     renderListe();
   }
@@ -1021,51 +1380,8 @@ window.addEventListener(
 
 
 // ============================================================
-// INITIALISATION
+// INITIALISATION UNIQUE
 // ============================================================
 
 renderListe();
 
-
-
-
-
-
-
-
-
-// ---- INITIALISATION ----
-renderListe();
-
-
-// ============================================================
-// REDIRECTION VERS LE BULLETIN
-// ============================================================
-
-document
-  .querySelector(".students-list")
-  .addEventListener("click", function (event) {
-
-    const bouton = event.target.closest(
-      ".bulletin-btn"
-    );
-
-    if (!bouton) {
-      return;
-    }
-
-    const ligneEtudiant = bouton.closest(
-      ".student-row"
-    );
-
-    if (!ligneEtudiant) {
-      return;
-    }
-
-    const etudiantId =
-      ligneEtudiant.dataset.id;
-
-    window.location.href =
-      "bulletin.html?id="
-      + encodeURIComponent(etudiantId);
-  });
